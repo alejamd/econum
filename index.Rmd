@@ -1,0 +1,27 @@
+---
+title: "MyLabJournalAlexandre"
+output: html_document
+---
+
+<style type="text/css">
+.title {
+  display: none;
+}
+
+#getting-started img {
+  margin-right: 10px;
+}
+
+</style>
+
+<div class="row" style="padding-top: 30px;">
+<div class="col-sm-6">
+
+# **Ecologia numérica - Alexandre dos Santos**
+
+Fork do LabJournalWebsite, do crumplab, pra publicar os exercícios de ecologia numérica.
+
+
+![](images/frog.png)
+</a>
+</div>
