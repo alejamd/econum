@@ -73,9 +73,6 @@ print.data.frame(spe)
 range(spe)
 apply(spe, 2, range)
 (ab <- table(unlist(spe)))
-dev.new(title = "Distribuição de classe de abundância", 
-  noRStudioGD = TRUE
-)
 barplot(ab, 
   las = 1,
   xlab = "Classe de abundância",
@@ -91,7 +88,7 @@ sum(spe == 0) / (nrow(spe) * ncol(spe))
 **Respondendo algumas perguntas**
 Onde há mais espécies de peixes? Existe uma tendência de riqueza em relação à direção do rio? 
 ```{r}
-dev.new(title = "Locais", width = 9, noRStudioGD = TRUE)
+
 plot(spa, 
   asp = 1, 
   type = "n", 
@@ -106,7 +103,8 @@ text(15, 35, "Foz", cex = 1.2, col = "blue")
 
 
 ```
-Foi observado que a maior riqueza está ba Foz. Sim, existe uma tendência clara na riqueza: existem mais espécies quanto mais perto da foz. Isso pode ser porque, na maioria dos rios, os estuários também possuem uma grande abundância de espécies marinhas, muitas mais até do que as espécies de água doce. Algumas espécies marinhas também podem ir rio acima em certas fases ontogenéticas, como em estágios larvais e na reprodução. 
+
+É observado que a maior riqueza está ba foz. Sim, existe uma tendência clara na riqueza: existem mais espécies quanto mais perto da foz. Isso pode ser porque, na maioria dos rios, os estuários também possuem uma grande abundância de espécies marinhas, muitas mais até do que as espécies de água doce. Algumas espécies marinhas também podem ir rio acima em certas fases ontogenéticas, como em estágios larvais e na reprodução. 
 
 Mas e quanto à abundância? se distribui da mesma forma?
 
@@ -125,19 +123,15 @@ lines(env$dfs, spe$Abbr, col = 2)
 lines(env$dfs, spe$Babl, col = 1, lty = "dotted")
 
 ```
+
+
 É observado que a abundância não necessariamente possui o mesmo padrão de distribuição ao longo do rio em relação à riqueza, que está concentrada na foz. Algumas espécies são mais abundantes na nascente, outras na pate média do rio, outras na foz.
 
 Claramente existem outras variáveis ambientais além da distância da nascente influenciando a abundância das espécies. Quais variáveis ambientais podem explicar isso?
 
 ```{r}
 
-dev.new(
-  title = "Variáveis ambientais", 
-  width = 11, 
-  height = 8,
-  noRStudioGD = TRUE
-)
-par(mfrow = c(2, 2))
+
 plot(spa, 
   asp = 1, 
   cex.axis = 0.8, 
@@ -193,3 +187,4 @@ O rio possui mais elevação perto da nascente, e mais descarga perto da foz, o 
 
 O rio possui mais oxigênio na nascente e na parte média, e possui mais nitrato na parte média-baixa. As espécies que são abundantes no médio e médio-alto rio provavelmente favoerecem águas com mais oxigênio, enquanto espécies do médio e médio-baixo rio favorecem águas com mais nitrato.
 
+**Nota**: Aparentemente o rmarkdown tem algum problema com a função dev.new e não plota os gráficos quando faço knit pra html, então plotei os gráficos das variáveis ambientais separados. 
