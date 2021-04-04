@@ -342,8 +342,115 @@ div.tocify {
 </div>
 
 
-<div id="aqui-vou-colocar-os-exercícios-na-medida-que-são-feitos." class="section level2">
-<h2>Aqui vou colocar os exercícios na medida que são feitos.</h2>
+<div id="explorando-bases-de-dados" class="section level2">
+<h2>1. Explorando bases de dados</h2>
+<p>Criando uma matriz de presência e ausência de espécies, com 20 espécies e 8 localidades.</p>
+<pre class="r"><code>set.seed(999) 
+tibble(
+  spec = paste0(&quot;sp&quot;, 1:20),
+  siteA = sample(c(0:1), replace=TRUE, size=20),
+  siteB = sample(c(0:1), replace=TRUE, size=20),
+  siteC = sample(c(0:1), replace=TRUE, size=20),
+  siteD = sample(c(0:1), replace=TRUE, size=20),
+  siteE = sample(c(0:1), replace=TRUE, size=20),
+  siteF = sample(c(0:1), replace=TRUE, size=20),
+  siteG = sample(c(0:1), replace=TRUE, size=20),
+  siteH = sample(c(0:1), replace=TRUE, size=20) 
+)-&gt;matpresaus
+
+print.data.frame(matpresaus)</code></pre>
+<pre><code>##    spec siteA siteB siteC siteD siteE siteF siteG siteH
+## 1   sp1     0     1     1     0     0     0     0     0
+## 2   sp2     1     0     0     1     1     1     0     1
+## 3   sp3     0     0     0     0     0     0     1     0
+## 4   sp4     0     0     1     0     0     1     1     0
+## 5   sp5     0     1     0     0     1     0     1     0
+## 6   sp6     1     1     0     1     0     1     1     1
+## 7   sp7     0     0     0     0     0     1     1     0
+## 8   sp8     1     0     1     1     0     1     1     0
+## 9   sp9     1     0     1     1     0     0     0     0
+## 10 sp10     1     0     1     0     0     1     0     1
+## 11 sp11     0     0     1     1     1     1     1     1
+## 12 sp12     0     0     1     0     0     1     1     0
+## 13 sp13     1     1     1     1     1     0     0     1
+## 14 sp14     0     1     1     0     0     0     0     1
+## 15 sp15     0     1     0     0     0     0     1     1
+## 16 sp16     0     1     0     1     1     1     1     1
+## 17 sp17     1     0     1     0     1     1     0     0
+## 18 sp18     1     0     0     0     0     0     1     0
+## 19 sp19     0     0     0     1     0     0     1     0
+## 20 sp20     0     0     1     0     0     0     0     1</code></pre>
+<p>Agora uma matriz de abundância, com 30 espécies, 10 localidades, e abundâncias entre 0-20 nas localidades A-E, e 0-50 nas localidades F-J.</p>
+<pre class="r"><code>set.seed(999)
+tibble(
+  spec = paste0(&quot;sp&quot;, 1:30),
+  siteA = sample(c(0:20), replace=TRUE, size=30),
+  siteB = sample(c(0:20), replace=TRUE, size=30),
+  siteC = sample(c(0:20), replace=TRUE, size=30),
+  siteD = sample(c(0:20), replace=TRUE, size=30),
+  siteE = sample(c(0:20), replace=TRUE, size=30),
+  siteF = sample(c(0:50), replace=TRUE, size=30),
+  siteG = sample(c(0:50), replace=TRUE, size=30),
+  siteH = sample(c(0:50), replace=TRUE, size=30),
+  siteI = sample(c(0:50), replace=TRUE, size=30),
+  siteJ = sample(c(0:50), replace=TRUE, size=30)
+)-&gt;base1
+print.data.frame(base1)</code></pre>
+<pre><code>##    spec siteA siteB siteC siteD siteE siteF siteG siteH siteI siteJ
+## 1   sp1     3     3     1    10    14    31    16    14    50    13
+## 2   sp2     6     3     5     9     9     5    39    36     6    17
+## 3   sp3     8     8    14    10    19    35     8    32     2    47
+## 4   sp4    13     6    20    16    18    48    25    46    44     4
+## 5   sp5     0     1     0    11     4    14    34    10    39    15
+## 6   sp6     9    12    12     8    10     3    39    21    42    13
+## 7   sp7     2     1     3     0    13    41    22    24     9    15
+## 8   sp8    14    12    13    10    11    39    12    29    39    10
+## 9   sp9     4     6    17    17    11    41    17     6    21    39
+## 10 sp10     6     1    14     5    18    13    34    27    28    34
+## 11 sp11     5    12    15    18     8     1    16    29    41    30
+## 12 sp12    18    11     2     8     3    29    37    33    49    41
+## 13 sp13    10    12     0    20     9    24     8    14    30    33
+## 14 sp14    17    11    20    17     9    12     7    30    48    41
+## 15 sp15     0     1    12    19     5    37    25    44    45     7
+## 16 sp16     4    16    14    15    13    32    20     7     4    23
+## 17 sp17    18    11    20     2    18    40    36    26    20    18
+## 18 sp18    11    18    12    17     8    17    31    21    50    43
+## 19 sp19     8    19     2     1     9    34    48    26    22    23
+## 20 sp20    20     6     3     0    17    47     9    42     6    37
+## 21 sp21     4     8     7     7     3    18    17    50    35    16
+## 22 sp22     3     3    15    20     5    18    48    33    35    48
+## 23 sp23    14     8    13     5     5     0    27    36    35    25
+## 24 sp24    15    19    13     4    17    19    23    15    21    22
+## 25 sp25    10     6    15    18     3    49    49    20     2    43
+## 26 sp26     1     0    11     5     9    12    10    10    42    46
+## 27 sp27     8     4     9     8    19    15    33     6     5    34
+## 28 sp28     0     1    10    15    17    34    45    48    25     8
+## 29 sp29    17     7    13     3    16     6     9    25     2    24
+## 30 sp30     7    18    10    11    17     9    21    35     2    42</code></pre>
+<p><strong>Nota</strong>: Estou utilizando a função print.data.frame, pois o tibble sozinho mostra a tabela numa janela separada, e a tabela aparece incompleta no knit pro html.</p>
+<p>Agora construindo um sumário da base de dados criada.</p>
+<pre class="r"><code>summary(base1)</code></pre>
+<pre><code>##      spec               siteA           siteB            siteC     
+##  Length:30          Min.   : 0.00   Min.   : 0.000   Min.   : 0.0  
+##  Class :character   1st Qu.: 4.00   1st Qu.: 3.000   1st Qu.: 5.5  
+##  Mode  :character   Median : 8.00   Median : 7.500   Median :12.0  
+##                     Mean   : 8.50   Mean   : 8.133   Mean   :10.5  
+##                     3rd Qu.:13.75   3rd Qu.:12.000   3rd Qu.:14.0  
+##                     Max.   :20.00   Max.   :19.000   Max.   :20.0  
+##      siteD           siteE           siteF           siteG          siteH      
+##  Min.   : 0.00   Min.   : 3.00   Min.   : 0.00   Min.   : 7.0   Min.   : 6.00  
+##  1st Qu.: 5.00   1st Qu.: 8.00   1st Qu.:12.25   1st Qu.:16.0   1st Qu.:16.25  
+##  Median :10.00   Median :10.50   Median :21.50   Median :24.0   Median :26.50  
+##  Mean   :10.30   Mean   :11.23   Mean   :24.10   Mean   :25.5   Mean   :26.50  
+##  3rd Qu.:16.75   3rd Qu.:17.00   3rd Qu.:36.50   3rd Qu.:35.5   3rd Qu.:34.50  
+##  Max.   :20.00   Max.   :19.00   Max.   :49.00   Max.   :49.0   Max.   :50.00  
+##      siteI           siteJ      
+##  Min.   : 2.00   Min.   : 4.00  
+##  1st Qu.: 6.75   1st Qu.:15.25  
+##  Median :29.00   Median :24.50  
+##  Mean   :26.63   Mean   :27.03  
+##  3rd Qu.:41.75   3rd Qu.:40.50  
+##  Max.   :50.00   Max.   :48.00</code></pre>
 </div>
 
 

@@ -13,4 +13,183 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 ```
-## Aqui vou colocar os exercícios na medida que são feitos.
+
+## 1. Explorando bases de dados 
+ Criando uma matriz de presência e ausência de espécies, com 20 espécies e 8 localidades.
+
+```{r}
+set.seed(999) 
+tibble(
+  spec = paste0("sp", 1:20),
+  siteA = sample(c(0:1), replace=TRUE, size=20),
+  siteB = sample(c(0:1), replace=TRUE, size=20),
+  siteC = sample(c(0:1), replace=TRUE, size=20),
+  siteD = sample(c(0:1), replace=TRUE, size=20),
+  siteE = sample(c(0:1), replace=TRUE, size=20),
+  siteF = sample(c(0:1), replace=TRUE, size=20),
+  siteG = sample(c(0:1), replace=TRUE, size=20),
+  siteH = sample(c(0:1), replace=TRUE, size=20) 
+)->matpresaus
+
+print.data.frame(matpresaus)
+```
+
+Agora uma matriz de abundância, com 30 espécies, 10 localidades, e abundâncias entre 0-20 nas localidades A-E, e 0-50 nas localidades F-J.
+
+```{r}
+
+set.seed(999)
+tibble(
+  spec = paste0("sp", 1:30),
+  siteA = sample(c(0:20), replace=TRUE, size=30),
+  siteB = sample(c(0:20), replace=TRUE, size=30),
+  siteC = sample(c(0:20), replace=TRUE, size=30),
+  siteD = sample(c(0:20), replace=TRUE, size=30),
+  siteE = sample(c(0:20), replace=TRUE, size=30),
+  siteF = sample(c(0:50), replace=TRUE, size=30),
+  siteG = sample(c(0:50), replace=TRUE, size=30),
+  siteH = sample(c(0:50), replace=TRUE, size=30),
+  siteI = sample(c(0:50), replace=TRUE, size=30),
+  siteJ = sample(c(0:50), replace=TRUE, size=30)
+)->base1
+print.data.frame(base1)
+```
+**Nota**: Estou utilizando a função print.data.frame, pois o tibble sozinho mostra a tabela numa janela separada, e a tabela aparece incompleta no knit pro html.
+
+Agora criando um sumário da base de dados criada.
+
+```{r}
+summary(base1)
+```
+```{r}
+load("C:/Users/alexa/OneDrive/Documentos/GitHub/econum/NEwR-2ed_code_data/NEwR2-Data/Doubs.RData") # Carregando os dados que o livro usa como exemplo
+
+print.data.frame(spe)
+```
+
+
+
+```{r}
+range(spe)
+apply(spe, 2, range)
+(ab <- table(unlist(spe)))
+dev.new(title = "Distribuição de classe de abundância", 
+  noRStudioGD = TRUE
+)
+barplot(ab, 
+  las = 1,
+  xlab = "Classe de abundância",
+  ylab = "Frequência",
+  col = rainbow(6:1)
+)
+sum(spe == 0)
+sum(spe == 0) / (nrow(spe) * ncol(spe))
+
+```
+
+
+**Respondendo algumas perguntas**
+Onde há mais espécies de peixes? Existe uma tendência de riqueza em relação à direção do rio? 
+```{r}
+dev.new(title = "Locais", width = 9, noRStudioGD = TRUE)
+plot(spa, 
+  asp = 1, 
+  type = "n", 
+  main = "N de espécies nos locais amostrados", 
+  xlab = "x coordinate (km)", 
+  ylab = "y coordinate (km)"
+)
+lines(spa, col = "light blue")
+text(spa, row.names(spa), cex = 1, col = "blue")
+text(68, 20, "Nascente", cex = 1.2, col = "blue")
+text(15, 35, "Foz", cex = 1.2, col = "blue")
+
+
+```
+Foi observado que a maior riqueza está ba Foz. Sim, existe uma tendência clara na riqueza: existem mais espécies quanto mais perto da foz. Isso pode ser porque, na maioria dos rios, os estuários também possuem uma grande abundância de espécies marinhas, muitas mais até do que as espécies de água doce. Algumas espécies marinhas também podem ir rio acima em certas fases ontogenéticas, como em estágios larvais e na reprodução. 
+
+Mas e quanto à abundância? se distribui da mesma forma?
+
+```{r}
+ plot(env$dfs, 
+  spe$Satr, 
+  type = "l", 
+  col = 4, 
+  main = "Abundância",
+  xlab = "Distância da nascente [km]", 
+  ylab = "Abundância 'crua' (contagem simples) "
+)
+lines(env$dfs, spe$Thth, col = 3)
+lines(env$dfs, spe$Baba, col = "orange")
+lines(env$dfs, spe$Abbr, col = 2)
+lines(env$dfs, spe$Babl, col = 1, lty = "dotted")
+
+```
+É observado que a abundância não necessariamente possui o mesmo padrão de distribuição ao longo do rio em relação à riqueza, que está concentrada na foz. Algumas espécies são mais abundantes na nascente, outras na pate média do rio, outras na foz.
+
+Claramente existem outras variáveis ambientais além da distância da nascente influenciando a abundância das espécies. Quais variáveis ambientais podem explicar isso?
+
+```{r}
+
+dev.new(
+  title = "Variáveis ambientais", 
+  width = 11, 
+  height = 8,
+  noRStudioGD = TRUE
+)
+par(mfrow = c(2, 2))
+plot(spa, 
+  asp = 1, 
+  cex.axis = 0.8, 
+  main = "Elevação", 
+  pch = 21, 
+  col = "white", 
+  bg = "red", 
+  cex = 5 * env$ele / max(env$ele), 
+  xlab = "x", 
+  ylab = "y"
+)
+lines(spa, col = "light blue")
+plot(spa, 
+  asp = 1, 
+  cex.axis = 0.8, 
+  main = "Descarga", 
+  pch = 21, 
+  col = "white", 
+  bg = "blue",
+  cex = 5 * env$dis / max(env$dis),
+  xlab = "x", 
+  ylab = "y"
+)
+lines(spa, col = "light blue")
+plot(spa, 
+  asp = 1, 
+  cex.axis = 0.8, 
+  main = "Oxigênio", 
+  pch = 21, 
+  col = "white", 
+  bg = "green3",
+  cex = 5 * env$oxy / max(env$oxy),
+  xlab =  "x", 
+  ylab = "y"
+)
+lines(spa, col = "light blue")
+plot(spa, 
+  asp = 1,
+  cex.axis = 0.8, 
+  main = "Nitrato", 
+  pch = 21,
+  col = "white", 
+  bg = "brown",
+  cex = 5 * env$nit / max(env$nit),
+  xlab = "x", 
+  ylab = "y"
+)
+lines(spa, col = "light blue")
+
+```
+
+O rio possui mais elevação perto da nascente, e mais descarga perto da foz, o que é comum para um rio. Esses podem ser fatores que influenciam tanto na riqueza quanto na abundância das espécies que ocorrem mais próximas à nascente e à foz, pois podem afetar fatores como o fluxo de nutrientes na água. Além disso, esse grau de elevação e descarga também indica que larvas planctônicas de espécies que desovam na nascente podem ir parar na foz, concedendo uma maior riqueza.
+
+O rio possui mais oxigênio na nascente e na parte média, e possui mais nitrato na parte média-baixa. As espécies que são abundantes no médio e médio-alto rio provavelmente favoerecem águas com mais oxigênio, enquanto espécies do médio e médio-baixo rio favorecem águas com mais nitrato.
+
