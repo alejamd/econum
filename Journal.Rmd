@@ -188,3 +188,150 @@ O rio possui mais elevação perto da nascente, e mais descarga perto da foz, o 
 O rio possui mais oxigênio na nascente e na parte média, e possui mais nitrato na parte média-baixa. As espécies que são abundantes no médio e médio-alto rio provavelmente favoerecem águas com mais oxigênio, enquanto espécies do médio e médio-baixo rio favorecem águas com mais nitrato.
 
 **Nota**: Aparentemente o rmarkdown tem algum problema com a função dev.new e não plota os gráficos quando faço knit pra html, então plotei os gráficos das variáveis ambientais separados. 
+
+## 2. Medidas de associação
+
+Utilizando a base de dados os peixes da Suíça:
+
+```{r}
+# Removendo as localidades vazias
+spe <- spe[-8, ]
+env <- env[-8, ]
+spa <- spa[-8, ]
+
+# Aplicado as medidas de dissimilaridade
+library(vegan)
+spe.db <- vegdist(spe) # método de bray
+spe.dbln <- vegdist(log1p(spe)) # abundâncias logaritmizadas
+spe.norm <- decostand(spe, "nor")
+spe.dc <- dist(spe.norm) # matriz de chord distance
+spe.hel <- decostand(spe, "hel")
+spe.dh <- dist(spe.hel) # matriz de distância de hellinger
+head(spe.db)
+head(spe.dbln)
+head(spe.dc)
+head(spe.dh)
+
+
+```
+**Nota**: Aparentemente o rmarkdown não acredita de jeito nenhum que a função coldiss existe, então eu tive que catar a definição da função e colocar nesse documento. 
+
+```{r}
+# coldiss()
+# Color plots of a dissimilarity matrix, without and with ordering
+#
+# License: GPL-2 
+# Author: Francois Gillet, 23 August 2012
+#
+
+"coldiss" <- function(D, nc = 4, byrank = TRUE, diag = FALSE)
+{
+	library(gclus)
+
+	if (max(D)>1) D <- D/max(D)
+
+	if (byrank) {
+		spe.color <- dmat.color(1-D, cm.colors(nc))
+	}
+	else {
+		spe.color <- dmat.color(1-D, byrank=FALSE, cm.colors(nc))
+	}
+
+	spe.o <- order.single(1-D)
+	speo.color <- spe.color[spe.o, spe.o]
+	
+	op <- par(mfrow=c(1,2), pty="s")
+
+	if (diag) {
+		plotcolors(spe.color, rlabels=attributes(D)$Labels, 
+			main="Dissimilarity Matrix", 
+			dlabels=attributes(D)$Labels)
+		plotcolors(speo.color, rlabels=attributes(D)$Labels[spe.o], 
+			main="Ordered Dissimilarity Matrix", 
+			dlabels=attributes(D)$Labels[spe.o])
+	}
+	else {
+		plotcolors(spe.color, rlabels=attributes(D)$Labels, 
+			main="Dissimilarity Matrix")
+		plotcolors(speo.color, rlabels=attributes(D)$Labels[spe.o], 
+			main="Ordered Dissimilarity Matrix")
+	}
+
+	par(op)
+}
+
+# Usage:
+# coldiss(D = dissimilarity.matrix, nc = 4, byrank = TRUE, diag = FALSE)
+# If D is not a dissimilarity matrix (max(D) > 1), then D is divided by max(D)
+# nc 							number of colours (classes)
+# byrank= TRUE		equal-sized classes
+# byrank= FALSE		equal-length intervals
+# diag = TRUE			print object labels also on the diagonal
+
+# Example:
+# coldiss(spe.dj, nc=9, byrank=F, diag=T)
+
+```
+
+
+
+Agora, criando as matrizes de dissimilaridade
+```{r}
+coldiss(spe.db, diag = TRUE) #plotando a dissimilaridade de bray
+
+```
+
+```{r}
+coldiss(spe.dbln, diag = TRUE) # plotando as abundâncias logaritmizadas
+
+```
+
+```{r}
+coldiss(spe.dc, diag = TRUE) # plotando a chord distance
+```
+
+
+
+
+```{r}
+coldiss(spe.dh, diag = TRUE) # plotando a distância de hellinger 
+```
+
+**Pergunta**: A descarga d'água no rio afeta a composição das comunidades de peixes?
+
+```{r}
+library(vegan)
+euc_dist<-vegdist(spe, method = "euclidean") #medindo a distância euclidiana 
+euc_dist
+```
+```{r}
+library(usedist)
+mean(dist_subset(euc_dist, c(1:10))) #calculando a similaridade média dos locais onde a descagar d'água (dfs, de acordo com os dados em env) é <100.
+```
+```{r}
+
+mean(dist_subset(euc_dist, c(11:20))) #similaridade média dos locais onde dfs é >100 e <250
+```
+```{r}
+mean(dist_subset(euc_dist, c(21:29))) #similaridade média dos locais onde dfs é >250
+```
+```{r}
+clust_rio_euc<-hclust(euc_dist, method = "complete") #plotando o dendograma
+clust_graf_euc<-plot(clust_rio_euc, hang=-1)
+```
+
+
+```{r}
+library(dendextend)
+clust_rio_euc2<-as.dendrogram(clust_rio_euc) # transformando o cluster num objeto para poder editar
+colors<-c("#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#56B4E9", "#56B4E9", "#56B4E9", "#56B4E9", "#56B4E9", "#56B4E9", "#56B4E9", "#56B4E9", "#56B4E9", "#56B4E9", "#009E73", "#009E73", "#009E73", "#009E73", "#009E73", "#009E73", "#009E73", "#009E73", "#009E73") # definindo as cores que serão usadas
+colorCode<-c(alto=colors[1:10], medio=colors[11:20], baixo=colors[21:29])
+labels_colors(clust_rio_euc2) <- colorCode[order.dendrogram(clust_rio_euc2)]
+plot(clust_rio_euc2, main ="foi punk pra conseguir colorir")
+
+
+```
+Pela média das similaridades e pelo dendograma vemos que, possivelmente, maior descarga d'água contribui para uma maior similaridade entre os locais. Utilizando a distância euclidiana, foi obsevado que os locais com dfs>250 apresentaram mais similaridade, e os com dfs<100 apresentaram menos similaridade. Também é possível observar nos clusters do dendograma que, apesar dos locais geograficamente próximos serem mais similares, existem outliers, como os locais 10, 9 e 5. 
+
+Isso pode ser dar pois as larvas planctônicas desses peixes são levadas na corrente d'água. Talvez os locais com mais descarga sejam mais similares entre si por conta disso: a corrente  numa descarga mais forte é mais propensa a levar peixes de uma comunidade para outra, misturando as comunidades em locais com mais descarga e isolando as comunidades em locais com menos descarga.
+

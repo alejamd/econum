@@ -8,3 +8,10 @@ purrr
 dplyr
 stringr
 forcats
+permute
+lattice
+vegan
+cluster
+gclus
+usedist
+dendextend
