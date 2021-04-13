@@ -335,3 +335,68 @@ Pela média das similaridades e pelo dendograma vemos que, possivelmente, maior 
 
 Isso pode ser dar pois as larvas planctônicas desses peixes são levadas na corrente d'água. Talvez os locais com mais descarga sejam mais similares entre si por conta disso: a corrente  numa descarga mais forte é mais propensa a levar peixes de uma comunidade para outra, misturando as comunidades em locais com mais descarga e isolando as comunidades em locais com menos descarga.
 
+##Análise de Cluster 
+
+Já como no útilmo exercício foi medida a distância pra spe, aqui vou utilizar o dendograma já feito pra ver os grupos.
+
+Só olhando, acho que vejo 5 grupos claros, divididos em 2 grandes grupos. Então vou tentar k=5.
+
+```{r}
+grup_rio<-cutree(clust_rio_euc, k=5) # olhando pro dendograma, acredito que dá pra divir em 5 grupos
+table(grup_rio) 
+```
+```{r}
+plot(clust_rio_euc)
+rect.hclust(clust_rio_euc, k = 5, border = 2:5)
+```
+```{r}
+k5<-kmeans(spe, centers = 5, nstart=1)
+k5 # Aqui dá pra ver muita coisa, inclusive a qual cluster (1,2 uo 3) cada amostra do rio pertence. Dá pra ver a média de cada variável entre os clusters 
+
+```
+
+Os 5 clusters, divididos bem do jeito que eu imaginaria que seriam.
+
+```{r}
+
+library(factoextra)
+fviz_cluster(k5, data = spe)
+
+```
+Agora vou testar o número estatisticamente ideal de clusters.
+
+```{r}
+fviz_nbclust(spe, kmeans, method = "silhouette")
+``` 
+Parece que na verdade são dois. Agora vou re-fazer o plot de distância com k=2.
+
+```{r}
+k2<-kmeans(spe, centers =2, nstart=1)
+fviz_cluster(k2, data = spe)
+```
+Agora observando isso no dendograma:
+
+```{r}
+plot(clust_rio_euc)
+rect.hclust(clust_rio_euc, k = 2, border = 2:5)
+```
+O número ideal de clusters são justamente os 2 grandes grupos que eu achei que possuiriam 5 grupos dentros. Agora, o que poderia estar influenciando nessa diferença entre os dois clusters? Para avaliar isso, é necessário ver onde ambos estão localizados no rio.
+
+```{r}
+plot(spa, 
+  asp = 1, 
+  type = "n", 
+  main = "N de espécies nos locais amostrados", 
+  xlab = "x coordinate (km)", 
+  ylab = "y coordinate (km)"
+)
+lines(spa, col = "grey") # colorindo o plot
+text(spa[1:19,], col = "blue")
+text(spa[20:22,], rownames(spa[19:21,]), col = "red")
+text(spa[23:25,], rownames(spa[22:24,]), col = "blue")
+text(spa[26:30,], rownames(spa[25:29,]), col = "red")
+
+
+```
+Aqui um plot onde o vermelho representa o cluster 1, e o azul representa o cluster 2. É possível observar que desde a nascente até mais ou menos a parte média do rio, as comunidades fazem parte do cluster 2, mais abaixo no médio rio do cluster 1, brevemente do cluster 2 no médio-baixo rio, e novamente cluster 1 na foz. Por conta da "interrupção" na distribuição do clusters, penso que talvez esses grupos de similaridade estão relacionados com fatores ambientais que são distribuídos de forma menos linear no rio, como oxigênio e nitrato.
+
