@@ -851,7 +851,9 @@ labels_colors(clust_rio_euc2) &lt;- colorCode[order.dendrogram(clust_rio_euc2)]
 plot(clust_rio_euc2, main =&quot;foi punk pra conseguir colorir&quot;)</code></pre>
 <p><img src="Journal_files/figure-html/unnamed-chunk-20-1.png" width="672" /> Pela média das similaridades e pelo dendograma vemos que, possivelmente, maior descarga d’água contribui para uma maior similaridade entre os locais. Utilizando a distância euclidiana, foi obsevado que os locais com dfs&gt;250 apresentaram mais similaridade, e os com dfs&lt;100 apresentaram menos similaridade. Também é possível observar nos clusters do dendograma que, apesar dos locais geograficamente próximos serem mais similares, existem outliers, como os locais 10, 9 e 5.</p>
 <p>Isso pode ser dar pois as larvas planctônicas desses peixes são levadas na corrente d’água. Talvez os locais com mais descarga sejam mais similares entre si por conta disso: a corrente numa descarga mais forte é mais propensa a levar peixes de uma comunidade para outra, misturando as comunidades em locais com mais descarga e isolando as comunidades em locais com menos descarga.</p>
-<p>##Análise de Cluster</p>
+</div>
+<div id="análise-de-cluster" class="section level2">
+<h2>Análise de Cluster</h2>
 <p>Já como no útilmo exercício foi medida a distância pra spe, aqui vou utilizar o dendograma já feito pra ver os grupos.</p>
 <p>Só olhando, acho que vejo 5 grupos claros, divididos em 2 grandes grupos. Então vou tentar k=5.</p>
 <pre class="r"><code>grup_rio&lt;-cutree(clust_rio_euc, k=5) # olhando pro dendograma, acredito que dá pra divir em 5 grupos
@@ -921,7 +923,6 @@ rect.hclust(clust_rio_euc, k = 2, border = 2:5)</code></pre>
 <pre class="r"><code>plot(spa, 
   asp = 1, 
   type = &quot;n&quot;, 
-  main = &quot;N de espécies nos locais amostrados&quot;, 
   xlab = &quot;x coordinate (km)&quot;, 
   ylab = &quot;y coordinate (km)&quot;
 )

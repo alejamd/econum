@@ -335,7 +335,7 @@ Pela média das similaridades e pelo dendograma vemos que, possivelmente, maior 
 
 Isso pode ser dar pois as larvas planctônicas desses peixes são levadas na corrente d'água. Talvez os locais com mais descarga sejam mais similares entre si por conta disso: a corrente  numa descarga mais forte é mais propensa a levar peixes de uma comunidade para outra, misturando as comunidades em locais com mais descarga e isolando as comunidades em locais com menos descarga.
 
-##Análise de Cluster 
+## Análise de Cluster 
 
 Já como no útilmo exercício foi medida a distância pra spe, aqui vou utilizar o dendograma já feito pra ver os grupos.
 
@@ -386,7 +386,6 @@ O número ideal de clusters são justamente os 2 grandes grupos que eu achei que
 plot(spa, 
   asp = 1, 
   type = "n", 
-  main = "N de espécies nos locais amostrados", 
   xlab = "x coordinate (km)", 
   ylab = "y coordinate (km)"
 )
