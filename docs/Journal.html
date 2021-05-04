@@ -933,6 +933,85 @@ text(spa[23:25,], rownames(spa[22:24,]), col = &quot;blue&quot;)
 text(spa[26:30,], rownames(spa[25:29,]), col = &quot;red&quot;)</code></pre>
 <p><img src="Journal_files/figure-html/unnamed-chunk-28-1.png" width="672" /> Aqui um plot onde o vermelho representa o cluster 1, e o azul representa o cluster 2. É possível observar que desde a nascente até mais ou menos a parte média do rio, as comunidades fazem parte do cluster 2, mais abaixo no médio rio do cluster 1, brevemente do cluster 2 no médio-baixo rio, e novamente cluster 1 na foz. Por conta da “interrupção” na distribuição do clusters, penso que talvez esses grupos de similaridade estão relacionados com fatores ambientais que são distribuídos de forma menos linear no rio, como oxigênio e nitrato.</p>
 </div>
+<div id="métodos-de-ordenamento" class="section level2">
+<h2>Métodos de ordenamento</h2>
+<p>exemplo: Uma usina hidroelétrica está para ser construída no rio e o governo encomendou estudos de impacto ambiental que precisam demonstrar várias coisas. É necessário analisar tanto a comunidade de peixes como as condições físico-quimicas do rio.</p>
+<p>Primeiro, fazendo uma PCA com as variáveis ambientais:</p>
+<pre class="r"><code>env_pca&lt;-env[,-1][,-4]# retirando as colunas dfs e dis
+princomp(env_pca)-&gt; pca_env
+summary(pca_env)</code></pre>
+<pre><code>## Importance of components:
+##                             Comp.1       Comp.2      Comp.3       Comp.4
+## Standard deviation     265.7458613 11.064942601 8.908097576 6.7050299489
+## Proportion of Variance   0.9962717  0.001727202 0.001119476 0.0006342292
+## Cumulative Proportion    0.9962717  0.997998899 0.999118374 0.9997526036
+##                             Comp.5       Comp.6       Comp.7       Comp.8
+## Standard deviation     4.010801606 9.586972e-01 6.966768e-01 2.031298e-01
+## Proportion of Variance 0.000226938 1.296605e-05 6.847112e-06 5.820925e-07
+## Cumulative Proportion  0.999979542 9.999925e-01 9.999994e-01 9.999999e-01
+##                              Comp.9
+## Standard deviation     6.693884e-02
+## Proportion of Variance 6.321223e-08
+## Cumulative Proportion  1.000000e+00</code></pre>
+<p>Pelo summary é possível observar que a maior parte da variação está de longe em Comp. 1.</p>
+<pre class="r"><code>library(tidyverse)
+library(factoextra)
+pca_env$scores %&gt;% 
+as.tibble() %&gt;% 
+mutate(setor=ifelse(Comp.1&lt;0,&quot;medio-baixo&quot;, &quot;alto&quot;))-&gt; env_set
+fviz_pca_ind(pca_env,
+             geom.ind = &quot;point&quot;, # show points only (nbut not &quot;text&quot;)
+             col.ind = env_set$setor, # color by groups
+             palette = c(&quot;#009999&quot;, &quot;#0000FF&quot;),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = &quot;Groups&quot;
+             )</code></pre>
+<p><img src="Journal_files/figure-html/unnamed-chunk-30-1.png" width="672" /> É observado que o eixo horizontal explica quase toda a variação nos dados. Também existe um overlap considerável entre os dois grupos.</p>
+<p>Agora, fazendo uma NMDS dos dados das espécies.</p>
+<pre class="r"><code>library(vegan)
+nmds&lt;-metaMDS(spe) </code></pre>
+<pre><code>## Run 0 stress 0.07477809 
+## Run 1 stress 0.1248198 
+## Run 2 stress 0.08841669 
+## Run 3 stress 0.1134129 
+## Run 4 stress 0.08917038 
+## Run 5 stress 0.0738367 
+## ... New best solution
+## ... Procrustes: rmse 0.01960989  max resid 0.09439325 
+## Run 6 stress 0.1111023 
+## Run 7 stress 0.08841674 
+## Run 8 stress 0.0742934 
+## ... Procrustes: rmse 0.01374155  max resid 0.06390472 
+## Run 9 stress 0.07477827 
+## Run 10 stress 0.07477823 
+## Run 11 stress 0.1223636 
+## Run 12 stress 0.08841673 
+## Run 13 stress 0.08845295 
+## Run 14 stress 0.1127535 
+## Run 15 stress 0.09288416 
+## Run 16 stress 0.120581 
+## Run 17 stress 0.07376231 
+## ... New best solution
+## ... Procrustes: rmse 0.003800054  max resid 0.01466883 
+## Run 18 stress 0.1127442 
+## Run 19 stress 0.1104323 
+## Run 20 stress 0.07477802 
+## *** No convergence -- monoMDS stopping criteria:
+##     20: stress ratio &gt; sratmax</code></pre>
+<pre class="r"><code>nmds_dat&lt;-data.frame(nmds$points, spe)
+colnames(nmds_dat) &lt;- c(&quot;MDS1&quot;,&quot;MDS2&quot;, &quot;setor&quot;)
+nmds_dat %&gt;% 
+  ggplot(aes(MDS1, MDS2, color=setor))+geom_point()</code></pre>
+<p><img src="Journal_files/figure-html/unnamed-chunk-32-1.png" width="672" /> Existe uma certa semelhança na distribuição com a PCA dos dados ambientais, onde as comunidades do alto rio se concenctram na parte direita do gráfico, e as espécies do médio-baixo na parte esquerda e central. Isso signiica que provavelmente a distribuição das variaveis ambientais (que são explicados quase que somente por PC1) afeta essa distribuição matemática das comunidades.</p>
+<p>Dessa forma, acredito que dá pra dividir o rio em duas partes. Utilizando o método K-Means supondo clusters:</p>
+<pre class="r"><code>k2_spe&lt;-kmeans(spe, centers =2, nstart=1)
+fviz_cluster(k2_spe, data = spe)</code></pre>
+<p><img src="Journal_files/figure-html/unnamed-chunk-33-1.png" width="672" /> Agora para os dados ambientais</p>
+<pre class="r"><code>k2&lt;-kmeans(env, centers =2, nstart=1)
+fviz_cluster(k2, data = env)</code></pre>
+<p><img src="Journal_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<p>Com base em todas essas análises, princiapalmente no PCA e NMDS, é observado que várias espécies do alto rio também estão presente no baixo-médio rio, mas o contrário não é verdade. A hidrelética, se construida no alto rio, irá prejudicar as comunidades de lá, porém, parte da diversidade do alto rio é representa em comunidades do baixo-médio rio. Seria menos danoso construir a hidrelétrica no alto rio.</p>
+</div>
 
 
 

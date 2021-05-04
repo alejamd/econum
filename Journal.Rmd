@@ -399,3 +399,64 @@ text(spa[26:30,], rownames(spa[25:29,]), col = "red")
 ```
 Aqui um plot onde o vermelho representa o cluster 1, e o azul representa o cluster 2. É possível observar que desde a nascente até mais ou menos a parte média do rio, as comunidades fazem parte do cluster 2, mais abaixo no médio rio do cluster 1, brevemente do cluster 2 no médio-baixo rio, e novamente cluster 1 na foz. Por conta da "interrupção" na distribuição do clusters, penso que talvez esses grupos de similaridade estão relacionados com fatores ambientais que são distribuídos de forma menos linear no rio, como oxigênio e nitrato.
 
+
+## Métodos de ordenamento
+
+exemplo: Uma usina hidroelétrica está para ser construída no rio e o governo encomendou estudos de impacto ambiental que precisam demonstrar várias coisas. É necessário analisar tanto a comunidade de peixes como as condições físico-quimicas do rio. 
+
+Primeiro, fazendo uma PCA com as variáveis ambientais:
+
+```{r}
+env_pca<-env[,-1][,-4]# retirando as colunas dfs e dis
+princomp(env_pca)-> pca_env
+summary(pca_env)
+
+```
+Pelo summary é possível observar que a maior parte da variação está de longe em Comp. 1. 
+
+```{r}
+library(tidyverse)
+library(factoextra)
+pca_env$scores %>% 
+as.tibble() %>% 
+mutate(setor=ifelse(Comp.1<0,"medio-baixo", "alto"))-> env_set
+fviz_pca_ind(pca_env,
+             geom.ind = "point", # show points only (nbut not "text")
+             col.ind = env_set$setor, # color by groups
+             palette = c("#009999", "#0000FF"),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = "Groups"
+             )
+```
+É observado que o eixo horizontal explica quase toda a variação nos dados. Também existe um overlap considerável entre os dois grupos.    
+
+Agora, fazendo uma NMDS dos dados das espécies.
+
+```{r}
+library(vegan)
+nmds<-metaMDS(spe) 
+
+```
+```{r}
+nmds_dat<-data.frame(nmds$points, spe)
+colnames(nmds_dat) <- c("MDS1","MDS2", "setor")
+nmds_dat %>% 
+  ggplot(aes(MDS1, MDS2, color=setor))+geom_point()
+```
+Existe uma certa semelhança na distribuição com a PCA dos dados ambientais, onde as comunidades do alto rio se concenctram na parte direita do gráfico, e as espécies do médio-baixo na parte esquerda e central. Isso signiica que provavelmente a distribuição das variaveis ambientais (que são explicados quase que somente por PC1) afeta essa distribuição matemática das comunidades.
+
+Dessa forma, acredito que dá pra dividir o rio em duas partes. Utilizando o método K-Means supondo clusters:
+
+```{r}
+k2_spe<-kmeans(spe, centers =2, nstart=1)
+fviz_cluster(k2_spe, data = spe)
+```
+Agora para os dados ambientais
+
+```{r}
+k2<-kmeans(env, centers =2, nstart=1)
+fviz_cluster(k2, data = env)
+```
+
+Com base em todas essas análises, princiapalmente no PCA e NMDS, é observado que várias espécies do alto rio também estão presente no baixo-médio rio, mas o contrário não é verdade. A hidrelética, se construida no alto rio, irá prejudicar as comunidades de lá, porém, parte da diversidade do alto rio é representa em comunidades do baixo-médio rio. Seria menos danoso construir a hidrelétrica no alto rio.
+  
